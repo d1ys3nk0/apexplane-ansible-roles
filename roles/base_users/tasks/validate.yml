@@ -1,0 +1,8 @@
+---
+
+- name: Assert base users required variables are set
+  ansible.builtin.assert:
+    that:
+      - base_users_ansible_user is not none
+      - base_users_ansible_user | string | length > 0
+    fail_msg: Define base_users_ansible_user before running role base_users.

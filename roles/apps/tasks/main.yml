@@ -1,0 +1,22 @@
+---
+
+- name: Validate apps configuration
+  ansible.builtin.include_tasks: validate.yml
+  tags:
+    - always
+
+- name: Configure IAM access for apps
+  ansible.builtin.include_tasks: setup_iam.yml
+  loop: '{{ apps_list | default([], true) }}'
+  loop_control:
+    loop_var: apps_app
+    label: '{{ apps_app.name }}'
+  when: apps_iam_enabled | bool
+
+- name: Configure Docker networks
+  ansible.builtin.include_tasks: setup_docker.yml
+  loop: '{{ apps_list | default([], true) }}'
+  loop_control:
+    loop_var: apps_app
+    label: '{{ apps_app.name }}'
+  when: apps_docker_enabled | bool

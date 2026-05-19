@@ -1,0 +1,8 @@
+---
+
+- name: Update /etc/skel/.bashrc
+  become: true
+  ansible.builtin.copy:
+    src: skel/bashrc.sh
+    dest: /etc/skel/.bashrc
+    mode: '0644'

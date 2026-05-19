@@ -1,0 +1,113 @@
+---
+
+- name: Create a group for admins
+  become: true
+  ansible.builtin.group:
+    name: '{{ access_admin_group }}'
+
+- name: Grant sudo access without password to the group
+  become: true
+  ansible.builtin.copy:
+    content: "%{{ access_admin_group }} ALL=(ALL:ALL) NOPASSWD:ALL\n"
+    dest: '/etc/sudoers.d/{{ access_admin_group }}'
+    owner: root
+    group: root
+    mode: '0440'
+    validate: /usr/sbin/visudo -cf %s
+
+- name: Create admin accounts
+  become: true
+  ansible.builtin.user:
+    name: '{{ item }}'
+    shell: /bin/bash
+  loop: '{{ access_admin_users }}'
+
+- name: Check admin ssh private keys
+  become: true
+  ansible.builtin.stat:
+    path: /home/{{ item }}/.ssh/id_rsa
+  register: access_admin_ssh_private_keys
+  loop: '{{ access_admin_users }}'
+
+- name: Generate missing admin ssh keys
+  become: true
+  ansible.builtin.user:
+    name: '{{ item.item }}'
+    generate_ssh_key: true
+    ssh_key_bits: 2048
+    ssh_key_file: .ssh/id_rsa
+    ssh_key_comment: '{{ item.item }}@{{ ansible_nodename }}'
+  loop: '{{ access_admin_ssh_private_keys.results }}'
+  when: not item.stat.exists
+
+- name: Attach admin users to the group
+  become: true
+  ansible.builtin.user:
+    name: '{{ item }}'
+    append: true
+    groups:
+      - '{{ access_admin_group }}'
+  loop: '{{ access_admin_users }}'
+
+- name: Add authorized ssh key
+  become: true
+  ansible.posix.authorized_key:
+    user: '{{ item }}'
+    key: "{{ lookup('file', '{{ access_user_keys_dir }}/{{ item }}.pub') }}"
+    state: present
+  loop: '{{ access_admin_users }}'
+
+- name: Apply current .bashrc
+  become: true
+  ansible.builtin.copy:
+    remote_src: true
+    src: /etc/skel/.bashrc
+    dest: /home/{{ item }}/.bashrc
+    mode: '0644'
+    owner: '{{ item }}'
+    group: '{{ item }}'
+  loop: '{{ access_admin_users }}'
+
+- name: Get current home users before access cleanup
+  become: true
+  ansible.builtin.command: ls -1 /home/
+  register: access_current_home_users
+  changed_when: false
+  when: access_cleanup_mode | bool
+
+- name: Detect unmanaged home users
+  ansible.builtin.set_fact:
+    access_users_to_remove: '{{ access_current_home_users.stdout_lines | difference(access_admin_users + access_system_users | default([])) }}'
+  when: access_cleanup_mode | bool
+
+- name: Refuse unmanaged user removal in non-interactive mode
+  ansible.builtin.fail:
+    msg: >-
+      Unmanaged users found while INTERACTIVE is disabled: {{ access_users_to_remove | join(', ') }}.
+      Run interactively to approve deletion or add the users to access_admin_users or access_system_users.
+  when:
+    - access_cleanup_mode | bool
+    - not (access_interactive_mode | bool)
+    - access_users_to_remove | length > 0
+
+- name: Confirm unmanaged user removal
+  ansible.builtin.pause:
+    prompt: |-
+      The following users will be removed: {{ access_users_to_remove | join(', ') }}.
+
+      Press ENTER to proceed
+  when:
+    - access_cleanup_mode | bool
+    - access_interactive_mode | bool
+    - access_users_to_remove | length > 0
+
+- name: Remove unmanaged users
+  become: true
+  ansible.builtin.user:
+    name: '{{ item }}'
+    state: absent
+    remove: true
+  loop: '{{ access_users_to_remove }}'
+  when:
+    - access_cleanup_mode | bool
+    - access_users_to_remove | length > 0

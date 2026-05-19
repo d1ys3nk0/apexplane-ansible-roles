@@ -1,0 +1,37 @@
+---
+
+- name: Validate apps list
+  ansible.builtin.assert:
+    that:
+      - apps_list is sequence
+      - apps_list is not string
+      - apps_list | map(attribute='name') | reject('truthy') | list | length == 0
+      - apps_cluster_realm is not none
+      - apps_cluster_realm | string | length > 0
+    fail_msg: apps_list and apps_cluster_realm must be set when apps features are enabled.
+  when: apps_iam_enabled | bool or apps_docker_enabled | bool
+
+- name: Validate app definitions
+  ansible.builtin.assert:
+    that:
+      - item.envs | default([], true) is sequence
+      - item.envs | default([], true) is not string
+      - item.services | default([], true) is sequence
+      - item.services | default([], true) is not string
+      - item.envs | default([], true) | map(attribute='slug') | reject('truthy') | list | length == 0
+      - item.services | default([], true) | map(attribute='name') | reject('truthy') | list | length == 0
+    fail_msg: Each app definition must use an envs list with slug items and a services list with named items.
+  loop: '{{ apps_list | default([], true) }}'
+  loop_control:
+    label: "{{ item.name | default('<missing-name>', true) }}"
+  when: apps_iam_enabled | bool or apps_docker_enabled | bool
+
+- name: Validate apps IAM variables
+  ansible.builtin.assert:
+    that:
+      - apps_host_name is not none
+      - apps_host_name | string | length > 0
+      - apps_deploy_public_key_file is not none
+      - apps_deploy_public_key_file | string | length > 0
+    fail_msg: apps_deploy_public_key_file must point to the deploy public key used by the app account.
+  when: apps_iam_enabled | bool

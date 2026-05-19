@@ -1,0 +1,13 @@
+---
+
+- name: Validate base users variable contract
+  ansible.builtin.include_tasks: validate.yml
+
+- name: Run skel templates tasks
+  ansible.builtin.include_tasks: setup_skel.yml
+
+- name: Run root user tasks
+  ansible.builtin.include_tasks: setup_root.yml
+
+- name: Run provision user tasks
+  ansible.builtin.include_tasks: setup_provision.yml

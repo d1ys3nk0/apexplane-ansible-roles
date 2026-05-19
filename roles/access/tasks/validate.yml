@@ -1,0 +1,15 @@
+---
+
+- name: Assert access variable contract
+  ansible.builtin.assert:
+    that:
+      - access_admin_group | string | length > 0
+      - access_cleanup_mode | type_debug == 'bool'
+      - access_interactive_mode | type_debug == 'bool'
+      - access_admin_users is iterable
+      - access_admin_users is not string
+      - access_system_users is iterable
+      - access_system_users is not string
+      - access_user_keys_dir is not none
+      - access_user_keys_dir | string | length > 0
+    fail_msg: Define access_admin_group, access_admin_users, access_system_users, access_interactive_mode, and access_user_keys_dir before running role access.
