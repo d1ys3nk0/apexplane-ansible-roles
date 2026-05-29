@@ -23,7 +23,6 @@ PG_PORT="${PG_PORT:-}"
 PG_USER="${PG_USER:-}"
 PG_PASS="${PG_PASS:-}"
 PG_BASE="${PG_BASE:-}"
-PGDATABASE="${PGDATABASE:-${PG_BASE}}"
 SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd -P)"
 PSQLRC="${PWD}/psqlrc"
 
@@ -40,6 +39,5 @@ sudo docker run \
     -v "${PSQLRC}:/var/lib/postgresql/.psqlrc:ro" \
     -e "PGPASSWORD=${PG_PASS}" \
     -e "PGSSLMODE=${PG_SSL:-disable}" \
-    -e "PGDATABASE=${PGDATABASE}" \
     "${PG_IMAGE}" \
-    psql -h "${PG_HOST}" -p "${PG_PORT}" -U "${PG_USER}" -d "${PGDATABASE}" "$@"
+    psql -h "${PG_HOST}" -p "${PG_PORT}" -U "${PG_USER}" -d "${PG_BASE}" "$@"

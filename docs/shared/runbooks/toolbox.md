@@ -14,13 +14,9 @@ Load multiple dotenv files left-to-right by separating paths with `:`. Later fil
 /opt/toolbox/bin/dotenv /path/to/base.env:/path/to/app.env /opt/toolbox/bin/pg_client -d postgres -c '\l'
 ```
 
-Override a value from the dotenv file for one command by placing the assignment after the dotenv file path and before the script path:
+Override a value from the dotenv file for one command by placing the assignment after the dotenv file path and before the script path.
 
-```sh
-/opt/toolbox/bin/dotenv /path/to/env PGDATABASE=postgres /opt/toolbox/bin/pg_client -c 'SELECT now();'
-```
-
-All PostgreSQL toolbox scripts use the same connection environment variables: `PG_IMAGE`, `PG_HOST`, `PG_PORT`, `PG_USER`, `PG_PASS`, and optional `PG_SSL`. Database-scoped scripts use `PG_BASE` as the managed database name. `pg_client` connects to `PG_BASE` by default and accepts `PGDATABASE` only as an explicit interactive client override.
+All PostgreSQL toolbox scripts use the same connection environment variables: `PG_IMAGE`, `PG_HOST`, `PG_PORT`, `PG_USER`, `PG_PASS`, and optional `PG_SSL`. Database-scoped scripts use `PG_BASE` as the managed database name. `pg_client` connects to `PG_BASE`.
 
 ## Installed Files
 
