@@ -1,34 +1,54 @@
 ---
 
-- name: Inspect app ssh private key
-  become: true
-  ansible.builtin.stat:
-    path: /home/{{ apps_app.name }}/.ssh/id_rsa
-  register: apps_app_ssh_private_key
-
 - name: Create app account
   become: true
   ansible.builtin.user:
-    name: '{{ apps_app.name }}'
+    name: '{{ apps_instance.name }}'
     shell: /bin/bash
-    generate_ssh_key: "{{ not apps_app_ssh_private_key.stat.exists }}"
-    ssh_key_comment: '{{ apps_app.name }}@{{ apps_host_name }}'
     create_home: true
 
 - name: Restrict app home directory
   become: true
   ansible.builtin.file:
-    path: /home/{{ apps_app.name }}
+    path: /home/{{ apps_instance.name }}
     state: directory
     mode: '0750'
-    owner: '{{ apps_app.name }}'
-    group: '{{ apps_app.name }}'
+    owner: '{{ apps_instance.name }}'
+    group: '{{ apps_instance.name }}'
+
+- name: Ensure app ssh directory exists
+  become: true
+  ansible.builtin.file:
+    path: /home/{{ apps_instance.name }}/.ssh
+    state: directory
+    mode: '0700'
+    owner: '{{ apps_instance.name }}'
+    group: '{{ apps_instance.name }}'
+
+- name: Install app ssh private key
+  become: true
+  ansible.builtin.copy:
+    src: '{{ apps_instance.deploy_private_key_file }}'
+    dest: /home/{{ apps_instance.name }}/.ssh/id_rsa
+    owner: '{{ apps_instance.name }}'
+    group: '{{ apps_instance.name }}'
+    mode: '0600'
+  no_log: '{{ apps_nolog }}'
+
+- name: Install app ssh public key
+  become: true
+  ansible.builtin.copy:
+    src: '{{ apps_instance.deploy_public_key_file }}'
+    dest: /home/{{ apps_instance.name }}/.ssh/id_rsa.pub
+    owner: '{{ apps_instance.name }}'
+    group: '{{ apps_instance.name }}'
+    mode: '0644'
 
 - name: Add authorized ssh keys
   become: true
   ansible.posix.authorized_key:
-    user: '{{ apps_app.name }}'
-    key: "{{ lookup('file', apps_deploy_public_key_file) }}"
+    user: '{{ apps_instance.name }}'
+    key: "{{ lookup('file', apps_instance.deploy_public_key_file) }}"
     state: present
   when: not ansible_check_mode
 
@@ -36,8 +56,8 @@
   become: true
   ansible.builtin.copy:
     content: |
-      {{ apps_app.name }} ALL=(ALL) NOPASSWD:/usr/bin/docker,/opt/toolbox/bin/dotenv /home/{{ apps_app.name }}/postgres/*.env *
-    dest: /etc/sudoers.d/{{ apps_app.name }}
+      {{ apps_instance.name }} ALL=(ALL) NOPASSWD:/usr/bin/docker,/opt/toolbox/bin/dotenv /home/{{ apps_instance.name }}/postgres/*.env *
+    dest: /etc/sudoers.d/{{ apps_instance.name }}
     owner: root
     group: root
     mode: '0440'
@@ -47,8 +67,8 @@
   become: true
   ansible.builtin.copy:
     src: /etc/skel/.bashrc
-    dest: /home/{{ apps_app.name }}/.bashrc
+    dest: /home/{{ apps_instance.name }}/.bashrc
     remote_src: true
-    owner: '{{ apps_app.name }}'
-    group: '{{ apps_app.name }}'
+    owner: '{{ apps_instance.name }}'
+    group: '{{ apps_instance.name }}'
     mode: '0644'

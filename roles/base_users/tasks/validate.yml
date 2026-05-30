@@ -1,8 +1,8 @@
 ---
 
-- name: Assert base users required variables are set
+- name: Assert base users variable contract
   ansible.builtin.assert:
     that:
-      - base_users_ansible_user is not none
-      - base_users_ansible_user | string | length > 0
-    fail_msg: Define base_users_ansible_user before running role base_users.
+      - base_users_master_pass is string
+      - base_users_master_salt is string
+    fail_msg: Define base_users_master_pass and base_users_master_salt as strings before running role base_users.

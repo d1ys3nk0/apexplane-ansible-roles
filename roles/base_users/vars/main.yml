@@ -1,0 +1,5 @@
+---
+
+base_users_ci_mode: "{{ lookup('env', 'CI') | default('0', true) in ['1', 'true'] }}"
+base_users_debug_mode: "{{ lookup('env', 'DEBUG') | default('0', true) in ['1', 'true'] }}"
+base_users_nolog: '{{ (base_users_ci_mode | bool) and not (base_users_debug_mode | bool) }}'

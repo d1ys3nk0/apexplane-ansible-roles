@@ -3,11 +3,9 @@
 - name: Assert Docker required variables are set
   ansible.builtin.assert:
     that:
-      - docker_ansible_user is not none
-      - docker_ansible_user | string | length > 0
       - docker_users is iterable
       - docker_users is not string
-    fail_msg: Define docker_ansible_user before running role docker.
+    fail_msg: Define docker_users as a list before running role docker.
 
 - name: Assert Docker users are valid
   ansible.builtin.assert:

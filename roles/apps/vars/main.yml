@@ -1,0 +1,5 @@
+---
+
+apps_ci_mode: "{{ lookup('env', 'CI') | default('0', true) in ['1', 'true'] }}"
+apps_debug_mode: "{{ lookup('env', 'DEBUG') | default('0', true) in ['1', 'true'] }}"
+apps_nolog: '{{ (apps_ci_mode | bool) and not (apps_debug_mode | bool) }}'

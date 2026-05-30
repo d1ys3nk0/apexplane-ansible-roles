@@ -3,7 +3,7 @@
 - name: Ensure root user has correct settings and password
   become: true
   ansible.builtin.user:
-    name: '{{ base_users_ansible_user }}'
+    name: root
     password: >-
       {{ (base_users_master_pass | string | length > 0 and base_users_master_salt | string | length > 0) |
       ternary(base_users_master_pass | password_hash(hashtype='sha512', salt=base_users_master_salt), omit) }}

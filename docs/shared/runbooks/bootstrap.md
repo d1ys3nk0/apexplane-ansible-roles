@@ -1,20 +1,20 @@
 # Bootstrap
 
-## Prepare Ansible User
+## Prepare Run User
 
-Run this only when a host does not already have the `ansible` user with passwordless sudo.
+Run this only when a host does not already have the operator user with passwordless sudo.
 
 ```sh
 sudo -s
 
-id ansible || useradd -s /bin/bash -m ansible
-echo 'ansible ALL=(ALL:ALL) NOPASSWD:ALL' | tee /etc/sudoers.d/ansible
-chmod 440 /etc/sudoers.d/ansible
+id cici || useradd -s /bin/bash -m cici
+echo 'cici ALL=(ALL:ALL) NOPASSWD:ALL' | tee /etc/sudoers.d/cici
+chmod 440 /etc/sudoers.d/cici
 
-mkdir -p /home/ansible/.ssh
-cat /path/to/ansible.pub | tee /home/ansible/.ssh/authorized_keys
-chmod 600 /home/ansible/.ssh/authorized_keys
-chown -R ansible:ansible /home/ansible/.ssh
+mkdir -p /home/cici/.ssh
+cat /path/to/cici.pub | tee /home/cici/.ssh/authorized_keys
+chmod 600 /home/cici/.ssh/authorized_keys
+chown -R cici:cici /home/cici/.ssh
 ```
 
 ## Run Bootstrap Script
@@ -26,7 +26,7 @@ SSH_HOST="<HOST>" \
 SSH_PORT="22" \
 SSH_PORT_AFTER="55555" \
 SSH_USER="root" \
-SSH_USER_AFTER="ansible" \
+SSH_USER_AFTER="cici" \
 scripts/bootstrap.sh <realm> <platform> <cluster>
 ```
 

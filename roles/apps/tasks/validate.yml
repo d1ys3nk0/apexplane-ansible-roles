@@ -26,12 +26,17 @@
     label: "{{ item.name | default('<missing-name>', true) }}"
   when: apps_iam_enabled | bool or apps_docker_enabled | bool
 
-- name: Validate apps IAM variables
+- name: Validate app IAM definitions
   ansible.builtin.assert:
     that:
-      - apps_host_name is not none
-      - apps_host_name | string | length > 0
-      - apps_deploy_public_key_file is not none
-      - apps_deploy_public_key_file | string | length > 0
-    fail_msg: apps_deploy_public_key_file must point to the deploy public key used by the app account.
+      - item.deploy_private_key_file is defined
+      - item.deploy_private_key_file is not none
+      - item.deploy_private_key_file | string | length > 0
+      - item.deploy_public_key_file is defined
+      - item.deploy_public_key_file is not none
+      - item.deploy_public_key_file | string | length > 0
+    fail_msg: Each app definition must set deploy_private_key_file and deploy_public_key_file when apps IAM is enabled.
+  loop: '{{ apps_list | default([], true) }}'
+  loop_control:
+    label: "{{ item.name | default('<missing-name>', true) }}"
   when: apps_iam_enabled | bool

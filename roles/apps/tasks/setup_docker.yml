@@ -3,10 +3,10 @@
 - name: Create docker overlay networks for each environment
   become: true
   community.docker.docker_network:
-    name: '{{ apps_app.name }}_{{ apps_cluster_realm }}_{{ item.slug }}'
+    name: '{{ apps_instance.name }}_{{ apps_cluster_realm }}_{{ item.slug }}'
     driver: overlay
     attachable: true
     state: present
-  loop: '{{ apps_app.envs | default([], true) }}'
+  loop: '{{ apps_instance.envs | default([], true) }}'
   loop_control:
-    label: '{{ apps_app.name }}_{{ apps_cluster_realm }}_{{ item.slug }}'
+    label: '{{ apps_instance.name }}_{{ apps_cluster_realm }}_{{ item.slug }}'

@@ -3,6 +3,4 @@
 apps_list: []
 apps_cluster_realm: ~
 apps_docker_enabled: false
-apps_deploy_public_key_file: ~
-apps_host_name: ~
 apps_iam_enabled: false

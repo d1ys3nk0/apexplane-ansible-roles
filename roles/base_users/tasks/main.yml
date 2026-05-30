@@ -8,6 +8,3 @@
 
 - name: Run root user tasks
   ansible.builtin.include_tasks: setup_root.yml
-
-- name: Run provision user tasks
-  ansible.builtin.include_tasks: setup_provision.yml
