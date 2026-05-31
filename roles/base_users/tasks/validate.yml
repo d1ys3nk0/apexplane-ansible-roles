@@ -1,8 +1,0 @@
----
-
-- name: Assert base users variable contract
-  ansible.builtin.assert:
-    that:
-      - base_users_master_pass is string
-      - base_users_master_salt is string
-    fail_msg: Define base_users_master_pass and base_users_master_salt as strings before running role base_users.

@@ -89,7 +89,6 @@ def test_container_secret_env_values_are_not_hardcoded() -> None:
 
 def test_known_secret_tasks_use_role_nolog() -> None:
     expected = {
-        ("base_users", "tasks/setup_root.yml", "Ensure root user has correct settings and password"),
         ("docker_elastic", "tasks/main.yml", "Start elastic container"),
         ("docker_elastic", "tasks/setup_extra_instance.yml", "Start extra elastic container"),
         ("docker_minio", "tasks/main.yml", "Start MinIO container"),
@@ -98,6 +97,7 @@ def test_known_secret_tasks_use_role_nolog() -> None:
         ("docker_sonarqube", "tasks/main.yml", "Start SonarQube container"),
         ("docker_swarm_gramax", "tasks/main.yml", "Gramax is started in swarm cluster"),
         ("gitlab", "tasks/main.yml", "Update config"),
+        ("iam", "tasks/setup_root.yml", "Ensure root user has correct settings and password"),
     }
     errors: list[str] = []
 

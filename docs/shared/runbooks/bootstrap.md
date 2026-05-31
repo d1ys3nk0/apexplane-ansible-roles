@@ -1,6 +1,6 @@
 # Bootstrap
 
-## Prepare Run User
+## Prepare Provision User
 
 Run this only when a host does not already have the operator user with passwordless sudo.
 

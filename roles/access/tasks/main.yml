@@ -1,7 +1,0 @@
----
-
-- name: Validate access variable contract
-  ansible.builtin.include_tasks: validate.yml
-
-- name: Configure admin users
-  ansible.builtin.include_tasks: setup_admins.yml

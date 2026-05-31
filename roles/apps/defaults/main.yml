@@ -1,6 +1,0 @@
----
-
-apps_list: []
-apps_cluster_realm: ~
-apps_docker_enabled: false
-apps_iam_enabled: false
